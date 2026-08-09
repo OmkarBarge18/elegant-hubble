@@ -1,0 +1,31 @@
+{
+  "name": "url-shortener-analytics",
+  "version": "1.0.0",
+  "description": "High-performance URL Shortener and Analytics microservice powered by Node.js, Express, Redis caching, and PostgreSQL persistent storage.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "url-shortener",
+    "redis",
+    "postgresql",
+    "express",
+    "analytics",
+    "caching",
+    "rate-limiting",
+    "qr-code"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "ioredis": "^5.4.1",
+    "qrcode": "^1.5.3",
+    "useragent": "^2.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}

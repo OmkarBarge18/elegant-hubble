@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseLink | Fast URL Shortener & QR Code Studio</title>
+  <meta name="description" content="Fast, minimal, single-page URL shortener with customizable scannable QR code generator.">
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Local Scannable QR Engine -->
+  <script src="qrcode.min.js?v=6"></script>
+  <link rel="stylesheet" href="styles.css?v=6">
+</head>
+<body class="dark-theme">
+  <!-- Ambient Glow Background -->
+  <div class="bg-blur-orb orb-1"></div>
+  <div class="bg-blur-orb orb-2"></div>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand-logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <span class="logo-text">Pulse<span class="gradient-text">Link</span></span>
+      </a>
+      <span class="nav-tagline"><i class="fa-solid fa-bolt text-warning"></i> Instant URL Shortener & QR Studio</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <!-- HERO HEADER -->
+    <div class="hero-header text-center">
+      <h1 class="hero-title">Shorten URLs & Generate <span class="gradient-text">QR Codes</span></h1>
+      <p class="hero-subtitle">Paste a long link below to instantly generate a short URL and customizable scannable QR code.</p>
+    </div>
+
+    <!-- MAIN SHORTENER FORM CARD -->
+    <div class="card glass-card shorten-card">
+      <form id="shorten-form">
+        <div class="main-input-group">
+          <div class="input-icon"><i class="fa-solid fa-globe"></i></div>
+          <input type="url" id="original-url-input" class="form-control" placeholder="Paste your long URL here (e.g. https://github.com/expressjs/express)" required>
+          <button type="submit" class="btn btn-primary" id="shorten-btn">
+            <span>Shorten URL</span>
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </button>
+        </div>
+
+        <!-- Custom Slug Accordion -->
+        <div class="advanced-options-toggle" id="toggle-advanced">
+          <span><i class="fa-solid fa-sliders"></i> Custom Slug Options</span>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+
+        <div class="advanced-options-panel hidden" id="advanced-panel">
+          <div class="form-group">
+            <label for="custom-slug-input">Custom Slug (Optional)</label>
+            <div class="input-prefix-group">
+              <span class="input-prefix">pulse.ly/</span>
+              <input type="text" id="custom-slug-input" class="form-control" placeholder="my-custom-link" maxlength="32">
+            </div>
+            <small class="form-help">Letters, numbers, hyphens (3-32 chars)</small>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- RESULT & QR CODE WORKSPACE (Single Page Output) -->
+    <div id="result-container" class="result-workspace hidden">
+      <!-- Shortened URL Box -->
+      <div class="card glass-card result-card">
+        <div class="result-header">
+          <div class="result-badge"><i class="fa-solid fa-circle-check"></i> Shortened Link Ready!</div>
+        </div>
+
+        <div class="short-url-box">
+          <span class="short-url-text" id="result-short-url">http://localhost:8000/dev-launch</span>
+          <button class="btn btn-outline" id="btn-copy-short">
+            <i class="fa-regular fa-copy"></i> Copy Link
+          </button>
+          <a href="#" target="_blank" class="btn btn-primary" id="btn-test-short">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Link
+          </a>
+        </div>
+
+        <div class="result-details">
+          <div class="detail-item">
+            <span class="detail-label">Original Target URL</span>
+            <a href="#" target="_blank" class="detail-value text-ellipsis text-muted" id="result-original-url">https://github.com/...</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR CODE STUDIO CARD -->
+      <div class="card glass-card qr-studio-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-qrcode"></i> Customizable Scannable QR Code</h2>
+          <p class="text-muted">Scan with any mobile phone camera or customize colors below.</p>
+        </div>
+
+        <div class="grid grid-2 qr-studio-grid">
+          <!-- Canvas Preview -->
+          <div class="qr-preview-box text-center">
+            <div class="mini-qr-wrapper">
+              <canvas id="qr-canvas"></canvas>
+            </div>
+            <div class="qr-download-actions">
+              <button class="btn btn-primary" id="btn-download-png"><i class="fa-solid fa-download"></i> Download PNG</button>
+              <button class="btn btn-outline" id="btn-download-svg"><i class="fa-solid fa-file-code"></i> Download SVG</button>
+            </div>
+          </div>
+
+          <!-- Color & Margin Controls -->
+          <div class="qr-controls-box">
+            <div class="form-group">
+              <label>Encoded Destination:</label>
+              <div class="radio-group-container">
+                <label class="radio-card active" id="radio-mode-original">
+                  <input type="radio" name="qr-target-mode" value="original" checked>
+                  <div class="radio-info">
+                    <strong><i class="fa-solid fa-globe"></i> Direct Target URL (Mobile Scannable)</strong>
+                    <small>Encodes original web address directly</small>
+                  </div>
+                </label>
+                <label class="radio-card" id="radio-mode-short">
+                  <input type="radio" name="qr-target-mode" value="short">
+                  <div class="radio-info">
+                    <strong><i class="fa-solid fa-link"></i> Shortened Redirect Link</strong>
+                    <small>Encodes shortened route</small>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-2">
+              <div class="form-group">
+                <label for="qr-fg-color">Foreground Color:</label>
+                <div class="color-picker-row">
+                  <input type="color" id="qr-fg-color" value="#0f172a">
+                  <span class="color-hex" id="qr-fg-hex">#0f172a</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="qr-bg-color">Background Color:</label>
+                <div class="color-picker-row">
+                  <input type="color" id="qr-bg-color" value="#ffffff">
+                  <span class="color-hex" id="qr-bg-hex">#ffffff</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="qr-margin-slider">Quiet Zone Margin: <strong id="margin-val">2</strong></label>
+              <input type="range" id="qr-margin-slider" min="0" max="6" value="2" class="range-slider">
+            </div>
+
+            <div class="form-group">
+              <label>Preset Color Themes:</label>
+              <div class="preset-buttons">
+                <button class="btn btn-sm btn-preset" data-fg="#0f172a" data-bg="#ffffff">Classic Dark</button>
+                <button class="btn btn-sm btn-preset" data-fg="#6366f1" data-bg="#0f172a">Cyber Neon</button>
+                <button class="btn btn-sm btn-preset" data-fg="#10b981" data-bg="#064e3b">Emerald</button>
+                <button class="btn btn-sm btn-preset" data-fg="#ec4899" data-bg="#fdf2f8">Sunset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer text-center">
+    <p>PulseLink • Fast, Responsive URL Shortener & Scannable QR Code Studio</p>
+  </footer>
+
+  <script src="app.js?v=6"></script>
+</body>
+</html>
