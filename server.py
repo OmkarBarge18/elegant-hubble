@@ -68,6 +68,28 @@ def get_lan_ip():
     except Exception:
         return '127.0.0.1'
 
+GLOBAL_PUBLIC_URL = ""
+
+def start_public_tunnel():
+    global GLOBAL_PUBLIC_URL
+    import subprocess, threading
+    def _run_tunnel():
+        global GLOBAL_PUBLIC_URL
+        try:
+            cmd = ["ssh", "-R", f"80:127.0.0.1:{PORT}", "-o", "StrictHostKeyChecking=no", "nokey@localhost.run"]
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+            for line in iter(proc.stdout.readline, ''):
+                if 'https://' in line:
+                    m = re.search(r'(https://[a-zA-Z0-9.-]+\.lhr\.life)', line)
+                    if m:
+                        GLOBAL_PUBLIC_URL = m.group(1)
+                        print(f"🌍 Live Public HTTPS Domain: {GLOBAL_PUBLIC_URL}")
+        except Exception:
+            pass
+    
+    t = threading.Thread(target=_run_tunnel, daemon=True)
+    t.start()
+
 def extract_clean_slug(raw_str):
     if not raw_str:
         return ''
@@ -105,7 +127,8 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json_response(200, {
                 'lanIp': lan_ip,
                 'port': PORT,
-                'networkUrl': f'http://{lan_ip}:{PORT}'
+                'networkUrl': f'http://{lan_ip}:{PORT}',
+                'publicUrl': GLOBAL_PUBLIC_URL
             })
             return
 
@@ -250,6 +273,8 @@ if __name__ == '__main__':
     print(f"Local Desktop: http://localhost:{PORT}")
     print(f"LAN / Wi-Fi:   http://{lan_ip}:{PORT}")
     print("=======================================================")
+
+    start_public_tunnel()
 
     with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
         try:

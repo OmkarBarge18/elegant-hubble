@@ -40,24 +40,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Fetch Network Info for Multi-Device Access
-  fetch('/api/system/network-info')
-    .then(r => r.json())
-    .then(res => {
-      if (res && res.lanIp) {
-        state.lanIp = res.lanIp;
-        state.networkUrl = res.networkUrl;
-        const tagline = document.querySelector('.nav-tagline');
-        if (tagline) {
-          tagline.innerHTML = `<i class="fa-solid fa-wifi text-success"></i> Working Network URL: <strong style="color:#38bdf8">${res.networkUrl}</strong>`;
+  // Fetch Network Info for Multi-Device & Global Tunnel Access
+  function pollNetworkInfo() {
+    fetch('/api/system/network-info')
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.lanIp) {
+          state.lanIp = res.lanIp;
+          state.networkUrl = res.networkUrl;
+          if (res.publicUrl) {
+            state.publicUrl = res.publicUrl;
+            let pubOpt = document.getElementById('opt-global-public');
+            const selectElem = document.getElementById('domain-select');
+            if (!pubOpt && selectElem) {
+              pubOpt = document.createElement('option');
+              pubOpt.id = 'opt-global-public';
+              selectElem.prepend(pubOpt);
+              pubOpt.selected = true;
+            }
+            if (pubOpt) {
+              pubOpt.value = res.publicUrl;
+              pubOpt.innerText = `🌍 Global Public HTTPS (${res.publicUrl.replace('https://', '')}) - Works Without Same Wi-Fi`;
+            }
+          }
+          const tagline = document.querySelector('.nav-tagline');
+          if (tagline) {
+            const displayUrl = res.publicUrl || res.networkUrl;
+            tagline.innerHTML = `<i class="fa-solid fa-globe text-success"></i> Live Domain: <strong style="color:#38bdf8">${displayUrl}</strong>`;
+          }
+          const autoOpt = document.querySelector('#domain-select option[value="auto"]');
+          if (autoOpt) autoOpt.innerText = `⚡ Same Wi-Fi / LAN IP (${res.lanIp}:${res.port || 8000})`;
+          updateDomainPrefix();
         }
-        const autoOpt = document.querySelector('#domain-select option[value="auto"]');
-        if (autoOpt) autoOpt.innerText = `⚡ Auto / LAN IP (${res.lanIp}:${res.port || 8000})`;
+      }).catch(() => {
         updateDomainPrefix();
-      }
-    }).catch(() => {
-      updateDomainPrefix();
-    });
+      });
+  }
+
+  pollNetworkInfo();
+  setInterval(pollNetworkInfo, 4000);
 
   if (domainSelect) {
     domainSelect.addEventListener('change', updateDomainPrefix);

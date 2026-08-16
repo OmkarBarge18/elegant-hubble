@@ -153,13 +153,13 @@
     "clicks": 1
   },
   "fmhy_gaming": {
-    "id": "u_322",
+    "id": "u_209",
     "slug": "fmhy_gaming",
-    "originalUrl": "https://fmhy.net/gaming#game-repacks",
+    "originalUrl": "https://fmhy.net/gaming",
     "title": "fmhy.net",
     "isCustom": true,
     "createdAt": "2026-08-16",
-    "clicks": 0
+    "clicks": 1
   },
   "redo-test": {
     "id": "u_947",
@@ -169,5 +169,32 @@
     "isCustom": true,
     "createdAt": "2026-08-16",
     "clicks": 1
+  },
+  "global-wifi-test": {
+    "id": "u_620",
+    "slug": "global-wifi-test",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-16",
+    "clicks": 0
+  },
+  "ngrok-fix-test": {
+    "id": "u_772",
+    "slug": "ngrok-fix-test",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-16",
+    "clicks": 1
+  },
+  "sl_5126": {
+    "id": "u_478",
+    "slug": "sl_5126",
+    "originalUrl": "https://fmhy.net/gaming",
+    "title": "fmhy.net",
+    "isCustom": false,
+    "createdAt": "2026-08-16",
+    "clicks": 0
   }
 }
