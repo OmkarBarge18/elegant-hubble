@@ -1,12 +1,18 @@
 # 🚀 Elegant Hubble | Fast URL Shortener & QR Code Studio
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express" alt="Express" />
-  <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis" alt="Redis" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16.x-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python" alt="Python" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js" alt="Node.js" /></a>
+  <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express" alt="Express" /></a>
+  <a href="https://redis.io/"><img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis" alt="Redis" /></a>
+  <a href="https://postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.x-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL" /></a>
+  <a href="https://python.org/"><img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python" alt="Python" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" /></a>
+</p>
+
+<p align="center">
+  <a href="http://localhost:8000">
+    <img src="public/preview.jpg" alt="Elegant Hubble Interface Preview" width="95%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  </a>
 </p>
 
 **Elegant Hubble** is a modern, high-performance, single-page URL Shortener & Scannable QR Code Studio built with a dark glassmorphism aesthetic. It features real-time custom slug sanitization, local network (LAN) multi-device access, file-backed database persistence, and vector/raster QR exports.
@@ -23,10 +29,11 @@
   - Quiet Zone margin sliders.
   - One-click Preset Themes (*Classic Dark, Cyber Neon, Emerald, Sunset*).
   - High-Resolution **PNG** and Vector **SVG** downloads.
-- 💾 **Persistent Disk Storage (`links_db.json`)**: Automatic file-backed JSON database ensures custom slugs and short links remain active permanently across server restarts.
+- 💾 **Persistent Disk Storage ([`links_db.json`](links_db.json))**: Automatic file-backed JSON database ensures custom slugs and short links remain active permanently across server restarts.
 - 🛡️ **Robust Custom Slug Sanitization**: Smart URL segment parsing handles any user formatting (`my-slug`, `pulse.ly/my-slug`, `/my-slug/`) with case-insensitive 302 matching.
 - 📱 **100% Mobile Responsive Design**: Modern UI featuring fluid clamp typography (`clamp()`), glassmorphism cards, and touch-optimized input targets for all devices.
-- 🐳 **Docker & Production Ready**: Pre-configured `Dockerfile`, `docker-compose.yml`, and `Procfile` for Render, Railway, Vercel, or cloud VPS deployment.
+- 🌐 **Global Multi-Network Access**: Supports ngrok (`ngrok http http://127.0.0.1:8000`) and live public HTTPS tunnels for opening short links on **different Wi-Fi networks and mobile cellular 4G/5G data worldwide**.
+- 🐳 **Docker & Production Ready**: Pre-configured [`Dockerfile`](Dockerfile), [`docker-compose.yml`](docker-compose.yml), and [`Procfile`](Procfile) for Render, Railway, Vercel, or cloud VPS deployment.
 
 ---
 
@@ -45,7 +52,8 @@ elegant-hubble/
 │   ├── app.js             # Client Engine & QR Studio Logic
 │   ├── index.html         # Glassmorphism HTML5 Layout
 │   ├── styles.css         # CSS Tokens, Clamp Typography & Mobile Breakpoints
-│   └── qrcode.min.js      # Client-side Canvas QR Generator Engine
+│   ├── qrcode.min.js      # Client-side Canvas QR Generator Engine
+│   └── preview.jpg        # Application Interface Preview Screenshot
 ├── Dockerfile             # Multi-stage Docker Container Build File
 ├── docker-compose.yml     # Multi-container Orchestration (Express + Redis + Postgres)
 ├── links_db.json          # File-backed Persistent Storage Database
@@ -53,6 +61,12 @@ elegant-hubble/
 ├── server.py              # Lightweight Zero-Dependency Python Server Runner
 └── README.md              # Project Documentation
 ```
+
+### Key Files Shortcuts:
+- 🖥️ **Frontend App**: [`public/index.html`](public/index.html) | [`public/app.js`](public/app.js) | [`public/styles.css`](public/styles.css)
+- ⚙️ **Python Server Engine**: [`server.py`](server.py)
+- 💾 **Persistent DB**: [`links_db.json`](links_db.json)
+- 🐳 **Docker Setup**: [`Dockerfile`](Dockerfile) | [`docker-compose.yml`](docker-compose.yml)
 
 ---
 
@@ -154,7 +168,8 @@ Response (`200 OK`):
 {
   "lanIp": "192.168.1.107",
   "port": 8000,
-  "networkUrl": "http://192.168.1.107:8000"
+  "networkUrl": "http://192.168.1.107:8000",
+  "publicUrl": "https://ad982fb0fcd9ec.lhr.life"
 }
 ```
 
@@ -190,11 +205,11 @@ Response (`200 OK`):
 4. Set Start Command: `node backend/server.js`
 5. Render will provision your live HTTPS URL.
 
-### Instant Tunneling via ngrok
-Share a live public link directly from your machine:
+### Instant Tunneling via ngrok (Works Anywhere Without Same Wi-Fi)
+Share a live public link directly from your machine across cellular 4G/5G or any Wi-Fi network:
 
 ```bash
-ngrok http 8000
+ngrok http http://127.0.0.1:8000
 ```
 
 ---
