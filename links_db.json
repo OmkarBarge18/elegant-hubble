@@ -1,0 +1,56 @@
+{
+  "dev-launch": {
+    "id": "u_101",
+    "slug": "dev-launch",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "Express Framework Core Repo",
+    "isCustom": true,
+    "createdAt": "2026-08-01",
+    "clicks": 1420
+  },
+  "ai-research": {
+    "id": "u_102",
+    "slug": "ai-research",
+    "originalUrl": "https://arxiv.org/abs/2312.00000",
+    "title": "LLM Architecture & Scaling Paper",
+    "isCustom": true,
+    "createdAt": "2026-08-03",
+    "clicks": 890
+  },
+  "redis-docs": {
+    "id": "u_103",
+    "slug": "redis-docs",
+    "originalUrl": "https://redis.io/docs/data-types/hashes/",
+    "title": "Redis Data Structures Documentation",
+    "isCustom": true,
+    "createdAt": "2026-08-05",
+    "clicks": 540
+  },
+  "my-persistent-slug": {
+    "id": "u_324",
+    "slug": "my-persistent-slug",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-11",
+    "clicks": 1
+  },
+  "fmhy": {
+    "id": "u_160",
+    "slug": "fmhy",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-11",
+    "clicks": 0
+  },
+  "lp": {
+    "id": "u_615",
+    "slug": "lp",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-11",
+    "clicks": 0
+  }
+}

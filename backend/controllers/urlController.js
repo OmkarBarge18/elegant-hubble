@@ -3,7 +3,7 @@
  * Handles Base62 short code generation, custom slug validation, cache-first redirection, and async analytics stream.
  */
 
-const { crypto } = require('crypto');
+const crypto = require('crypto');
 const { query } = require('../config/db');
 const { getCache, setCache, incrCounter } = require('../config/redis');
 
@@ -35,11 +35,21 @@ function generateRandomSlug(length = 6) {
   return result;
 }
 
+function extractCleanSlug(inputStr) {
+  if (!inputStr) return '';
+  let str = String(inputStr).trim();
+  str = str.replace(/^https?:\/\//i, '');
+  const parts = str.split('/').filter(Boolean);
+  let lastPart = parts.length > 0 ? parts[parts.length - 1] : str;
+  lastPart = lastPart.split('?')[0].split('#')[0];
+  return lastPart.replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
 /**
  * Validates custom slug format (letters, numbers, hyphens, underscores)
  */
 function isValidCustomSlug(slug) {
-  return /^[a-zA-Z0-9_-]{3,32}$/.test(slug);
+  return /^[a-zA-Z0-9_-]{1,32}$/.test(slug);
 }
 
 /**
@@ -62,32 +72,22 @@ async function createShortUrl(req, res) {
   try {
     const { originalUrl, customSlug, title, expiresAt } = req.body;
 
-    if (!originalUrl || !validateUrl(originalUrl)) {
+    if (!originalUrl) {
       return res.status(400).json({
         error: 'Invalid URL',
         message: 'Please provide a valid HTTP or HTTPS target URL.'
       });
     }
 
-    let slug = customSlug ? customSlug.trim() : null;
+    let targetUrl = originalUrl.trim();
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+      targetUrl = 'https://' + targetUrl;
+    }
+
+    let slug = extractCleanSlug(customSlug);
     let isCustom = false;
 
     if (slug) {
-      if (!isValidCustomSlug(slug)) {
-        return res.status(400).json({
-          error: 'Invalid Slug',
-          message: 'Custom slug must be 3-32 characters long and contain only letters, numbers, hyphens, or underscores.'
-        });
-      }
-      
-      // Check if custom slug is reserved or already taken
-      const existing = await query('SELECT slug FROM urls WHERE slug = $1', [slug]);
-      if (existing.rowCount > 0) {
-        return res.status(409).json({
-          error: 'Slug Conflict',
-          message: `The custom slug "${slug}" is already taken. Please choose another.`
-        });
-      }
       isCustom = true;
     } else {
       // Auto-generate random slug and check uniqueness
@@ -102,7 +102,7 @@ async function createShortUrl(req, res) {
 
     const id = (Math.random().toString(36).substring(2, 10) + Date.now().toString(36));
     const createdAt = new Date();
-    const parsedTitle = title || new URL(originalUrl).hostname;
+    const parsedTitle = title || new URL(targetUrl).hostname;
 
     // Persist to PostgreSQL
     const insertQuery = `
@@ -110,9 +110,9 @@ async function createShortUrl(req, res) {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
-    const insertResult = await query(insertQuery, [id, originalUrl, slug, parsedTitle, isCustom, createdAt, expiresAt || null]);
+    const insertResult = await query(insertQuery, [id, targetUrl, slug, parsedTitle, isCustom, createdAt, expiresAt || null]);
     const record = insertResult.rows[0] || {
-      id, original_url: originalUrl, slug, title: parsedTitle, is_custom: isCustom, created_at: createdAt, expires_at: expiresAt
+      id, original_url: targetUrl, slug, title: parsedTitle, is_custom: isCustom, created_at: createdAt, expires_at: expiresAt
     };
 
     // Warm up Redis Cache immediately (24h TTL)

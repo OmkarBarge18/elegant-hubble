@@ -9,37 +9,53 @@ import re
 
 PORT = 8000
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), 'public')
+DB_FILE = os.path.join(os.path.dirname(__file__), 'links_db.json')
 
-# In-memory storage for python runner
-links_db = {
-    'dev-launch': {
-        'id': 'u_101',
-        'slug': 'dev-launch',
-        'originalUrl': 'https://github.com/expressjs/express',
-        'title': 'Express Framework Core Repo',
-        'isCustom': True,
-        'createdAt': '2026-08-01',
-        'clicks': 1420
-    },
-    'ai-research': {
-        'id': 'u_102',
-        'slug': 'ai-research',
-        'originalUrl': 'https://arxiv.org/abs/2312.00000',
-        'title': 'LLM Architecture & Scaling Paper',
-        'isCustom': True,
-        'createdAt': '2026-08-03',
-        'clicks': 890
-    },
-    'redis-docs': {
-        'id': 'u_103',
-        'slug': 'redis-docs',
-        'originalUrl': 'https://redis.io/docs/data-types/hashes/',
-        'title': 'Redis Data Structures Documentation',
-        'isCustom': True,
-        'createdAt': '2026-08-05',
-        'clicks': 540
+def load_db():
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print("Notice: Error reading links_db.json:", e)
+    return {
+        'dev-launch': {
+            'id': 'u_101',
+            'slug': 'dev-launch',
+            'originalUrl': 'https://github.com/expressjs/express',
+            'title': 'Express Framework Core Repo',
+            'isCustom': True,
+            'createdAt': '2026-08-01',
+            'clicks': 1420
+        },
+        'ai-research': {
+            'id': 'u_102',
+            'slug': 'ai-research',
+            'originalUrl': 'https://arxiv.org/abs/2312.00000',
+            'title': 'LLM Architecture & Scaling Paper',
+            'isCustom': True,
+            'createdAt': '2026-08-03',
+            'clicks': 890
+        },
+        'redis-docs': {
+            'id': 'u_103',
+            'slug': 'redis-docs',
+            'originalUrl': 'https://redis.io/docs/data-types/hashes/',
+            'title': 'Redis Data Structures Documentation',
+            'isCustom': True,
+            'createdAt': '2026-08-05',
+            'clicks': 540
+        }
     }
-}
+
+def save_db():
+    try:
+        with open(DB_FILE, 'w', encoding='utf-8') as f:
+            json.dump(links_db, f, indent=2)
+    except Exception as e:
+        print("Error saving links_db.json:", e)
+
+links_db = load_db()
 
 def get_lan_ip():
     try:
@@ -51,6 +67,17 @@ def get_lan_ip():
         return ip
     except Exception:
         return '127.0.0.1'
+
+def extract_clean_slug(raw_str):
+    if not raw_str:
+        return ''
+    s = str(raw_str).strip()
+    s = re.sub(r'^https?://', '', s, flags=re.IGNORECASE)
+    parts = [p for p in s.split('/') if p]
+    if not parts:
+        return ''
+    last_part = parts[-1].split('?')[0].split('#')[0]
+    return re.sub(r'[^a-zA-Z0-9_-]', '', last_part)
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
@@ -118,9 +145,10 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # 3. Short URL Redirection: /:slug
-        slug = path.lstrip('/')
+        slug = path.lstrip('/').strip()
         if slug and not slug.startswith('api') and '.' not in slug and not slug.endswith('.html') and not slug.endswith('.js') and not slug.endswith('.css'):
-            link_record = links_db.get(slug)
+            # Lookup in links_db (direct match or case-insensitive)
+            link_record = links_db.get(slug) or links_db.get(slug.lower())
             target_url = link_record['originalUrl'] if link_record else None
             
             if not target_url and (slug.startswith('http://') or slug.startswith('https://')):
@@ -136,7 +164,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(302)
                 self.send_header('Location', target_url)
                 self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-                self.send_header('X-Redirected-By', 'PulseLink-Engine')
+                self.send_header('X-Redirected-By', 'ElegantHubble-Engine')
                 self.end_headers()
                 return
 
@@ -149,25 +177,40 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length).decode('utf-8')
             try:
                 body = json.loads(post_data)
-                original_url = body.get('originalUrl')
-                custom_slug = body.get('customSlug')
+                original_url = body.get('originalUrl', '').strip()
+                custom_slug_raw = body.get('customSlug', '').strip()
                 title = body.get('title')
 
                 if not original_url:
                     self.send_json_response(400, {'error': 'Invalid URL'})
                     return
 
-                slug = custom_slug.strip() if custom_slug else f"sl_{random.randint(1000, 9999)}"
+                if not original_url.startswith('http://') and not original_url.startswith('https://'):
+                    original_url = 'https://' + original_url
+
+                # Sanitize custom slug cleanly
+                clean_slug = extract_clean_slug(custom_slug_raw)
+                if clean_slug:
+                    slug = clean_slug
+                    is_custom = True
+                else:
+                    slug = f"sl_{random.randint(1000, 9999)}"
+                    is_custom = False
+
                 link_entry = {
                     'id': f'u_{random.randint(100, 999)}',
                     'slug': slug,
                     'originalUrl': original_url,
                     'title': title or urllib.parse.urlparse(original_url).netloc,
-                    'isCustom': bool(custom_slug),
+                    'isCustom': is_custom,
                     'createdAt': time.strftime('%Y-%m-%d'),
                     'clicks': 0
                 }
+                
+                # Store under both exact slug and lowercase slug for guaranteed matching
                 links_db[slug] = link_entry
+                links_db[slug.lower()] = link_entry
+                save_db()
 
                 lan_ip = get_lan_ip()
                 short_url = f"http://{lan_ip}:{PORT}/{slug}"
@@ -197,7 +240,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     print("=======================================================")
-    print(f"PulseLink Local Server listening at http://localhost:{PORT}")
+    print(f"ElegantHubble Local Server listening at http://localhost:{PORT}")
     print("=======================================================")
     with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
         try:

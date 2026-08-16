@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PulseLink | Fast URL Shortener & QR Code Studio</title>
+  <title>Elegant Hubble | Fast URL Shortener & QR Code Studio</title>
   <meta name="description" content="Fast, minimal, single-page URL shortener with customizable scannable QR code generator.">
   
   <!-- Google Fonts & Font Awesome Icons -->
@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Local Scannable QR Engine -->
-  <script src="qrcode.min.js?v=6"></script>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <script src="qrcode.min.js?v=10"></script>
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body class="dark-theme">
   <!-- Ambient Glow Background -->
@@ -26,9 +26,9 @@
     <div class="nav-container">
       <a href="#" class="brand-logo">
         <div class="logo-icon">
-          <i class="fa-solid fa-link"></i>
+          <i class="fa-solid fa-satellite"></i>
         </div>
-        <span class="logo-text">Pulse<span class="gradient-text">Link</span></span>
+        <span class="logo-text">Elegant<span class="gradient-text">Hubble</span></span>
       </a>
       <span class="nav-tagline"><i class="fa-solid fa-bolt text-warning"></i> Instant URL Shortener & QR Studio</span>
     </div>
@@ -45,30 +45,38 @@
     <!-- MAIN SHORTENER FORM CARD -->
     <div class="card glass-card shorten-card">
       <form id="shorten-form">
-        <div class="main-input-group">
-          <div class="input-icon"><i class="fa-solid fa-globe"></i></div>
-          <input type="url" id="original-url-input" class="form-control" placeholder="Paste your long URL here (e.g. https://github.com/expressjs/express)" required>
-          <button type="submit" class="btn btn-primary" id="shorten-btn">
-            <span>Shorten URL</span>
+        <!-- 1. Destination URL Input -->
+        <div class="form-group">
+          <label for="original-url-input"><i class="fa-solid fa-globe"></i> Target Destination URL</label>
+          <div class="main-input-group">
+            <input type="url" id="original-url-input" class="form-control" placeholder="https://github.com/expressjs/express" required>
+          </div>
+        </div>
+
+        <!-- 2. Custom Slug & Base Domain Inputs (Prominently Visible) -->
+        <div class="grid grid-2 mt-3">
+          <div class="form-group">
+            <label for="custom-slug-input"><i class="fa-solid fa-hashtag"></i> Custom Slug (Optional)</label>
+            <div class="input-prefix-group">
+              <span class="input-prefix" id="slug-domain-prefix">short.link/</span>
+              <input type="text" id="custom-slug-input" class="form-control" placeholder="my-custom-slug" maxlength="32">
+            </div>
+            <small class="form-help">Enter your custom slug keyword (e.g. my-custom-link)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="custom-domain-input"><i class="fa-solid fa-network-wired"></i> Custom Domain / Host (Optional)</label>
+            <input type="text" id="custom-domain-input" class="form-control" placeholder="e.g. pulse.ly or 192.168.1.107:8000">
+            <small class="form-help">Override domain prefix if using custom host</small>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-submit-row mt-3">
+          <button type="submit" class="btn btn-primary btn-block" id="shorten-btn">
+            <span>Shorten URL & Create QR</span>
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </button>
-        </div>
-
-        <!-- Custom Slug Accordion -->
-        <div class="advanced-options-toggle" id="toggle-advanced">
-          <span><i class="fa-solid fa-sliders"></i> Custom Slug Options</span>
-          <i class="fa-solid fa-chevron-down toggle-icon"></i>
-        </div>
-
-        <div class="advanced-options-panel hidden" id="advanced-panel">
-          <div class="form-group">
-            <label for="custom-slug-input">Custom Slug (Optional)</label>
-            <div class="input-prefix-group">
-              <span class="input-prefix">pulse.ly/</span>
-              <input type="text" id="custom-slug-input" class="form-control" placeholder="my-custom-link" maxlength="32">
-            </div>
-            <small class="form-help">Letters, numbers, hyphens (3-32 chars)</small>
-          </div>
         </div>
       </form>
     </div>
@@ -180,9 +188,9 @@
   </main>
 
   <footer class="footer text-center">
-    <p>PulseLink • Fast, Responsive URL Shortener & Scannable QR Code Studio</p>
+    <p>Elegant Hubble • Fast, Responsive URL Shortener & Scannable QR Code Studio</p>
   </footer>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

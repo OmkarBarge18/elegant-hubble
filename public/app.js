@@ -1,5 +1,5 @@
 /**
- * PulseLink Engine - Unified Single-Page URL Shortener & QR Studio
+ * Elegant Hubble Engine - Unified Single-Page URL Shortener & QR Studio
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,10 +27,26 @@ document.addEventListener('DOMContentLoaded', () => {
         state.networkUrl = res.networkUrl;
         const tagline = document.querySelector('.nav-tagline');
         if (tagline) {
-          tagline.innerHTML = `<i class="fa-solid fa-wifi text-success"></i> Multi-Device Access: <strong style="color:#38bdf8">${res.networkUrl}</strong>`;
+          tagline.innerHTML = `<i class="fa-solid fa-wifi text-success"></i> Working Network URL: <strong style="color:#38bdf8">${res.networkUrl}</strong>`;
         }
+        const prefixElem = document.getElementById('slug-domain-prefix');
+        if (prefixElem) prefixElem.innerText = `${res.lanIp}:${res.port || 8000}/`;
       }
-    }).catch(() => null);
+    }).catch(() => {
+      const prefixElem = document.getElementById('slug-domain-prefix');
+      if (prefixElem) prefixElem.innerText = `${window.location.host}/`;
+    });
+
+  const customDomainInput = document.getElementById('custom-domain-input');
+  if (customDomainInput) {
+    customDomainInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim().replace(/^https?:\/\//, '');
+      const prefixElem = document.getElementById('slug-domain-prefix');
+      if (prefixElem) {
+        prefixElem.innerText = val ? (val.endsWith('/') ? val : val + '/') : (state.lanIp ? `${state.lanIp}:8000/` : `${window.location.host}/`);
+      }
+    });
+  }
 
   // Form Elements
   const shortenForm = document.getElementById('shorten-form');
@@ -38,12 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const advancedPanel = document.getElementById('advanced-panel');
   const resultContainer = document.getElementById('result-container');
 
-  // Advanced Custom Options Accordion Toggle
-  toggleAdvanced.addEventListener('click', () => {
-    advancedPanel.classList.toggle('hidden');
-    const icon = toggleAdvanced.querySelector('.toggle-icon');
-    if (icon) icon.classList.toggle('fa-chevron-up');
-  });
+  // Advanced Custom Options Accordion Toggle (if present)
+  if (toggleAdvanced) {
+    toggleAdvanced.addEventListener('click', () => {
+      if (advancedPanel) advancedPanel.classList.toggle('hidden');
+      const icon = toggleAdvanced.querySelector('.toggle-icon');
+      if (icon) icon.classList.toggle('fa-chevron-up');
+    });
+  }
 
   // Shorten Form Submit Event
   shortenForm.addEventListener('submit', async (e) => {
@@ -58,7 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
       originalUrl = 'https://' + originalUrl;
     }
 
-    const customSlug = customSlugInput.value.trim();
+    const customSlugRaw = customSlugInput ? customSlugInput.value : '';
+    const customSlug = extractCleanSlug(customSlugRaw);
+    const customDomainRaw = customDomainInput ? customDomainInput.value.trim() : '';
+
     const btn = document.getElementById('shorten-btn');
     const originalBtnHtml = btn.innerHTML;
     btn.disabled = true;
@@ -77,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const json = await response.json();
         data = json.data;
       } else {
-        // High-Speed Local Generator Fallback
         const generatedSlug = customSlug || generateSlug();
         data = {
           slug: generatedSlug,
@@ -86,10 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       }
 
+      // Apply Custom Domain Override if entered
+      if (customDomainRaw) {
+        let domainClean = customDomainRaw.replace(/^https?:\/\//, '');
+        if (!domainClean.includes(':') && !domainClean.includes('.')) {
+          domainClean = `${domainClean}:8000`;
+        }
+        const protocol = customDomainRaw.startsWith('https://') ? 'https' : 'http';
+        data.shortUrl = `${protocol}://${domainClean}/${data.slug}`;
+      }
+
       // Update Active State
       state.activeSlug = data.slug;
       state.activeOriginalUrl = data.originalUrl;
-      state.activeShortUrl = data.shortUrl || `${window.location.origin}/${data.slug}`;
+      state.activeShortUrl = data.shortUrl;
 
       // Populate Shortened URL Box
       document.getElementById('result-short-url').innerText = state.activeShortUrl;
@@ -114,6 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = originalBtnHtml;
     }
   });
+
+  function extractCleanSlug(inputStr) {
+    if (!inputStr) return '';
+    let str = inputStr.trim();
+    str = str.replace(/^https?:\/\//i, '');
+    const parts = str.split('/').filter(Boolean);
+    let lastPart = parts.length > 0 ? parts[parts.length - 1] : str;
+    lastPart = lastPart.split('?')[0].split('#')[0];
+    return lastPart.replace(/[^a-zA-Z0-9_-]/g, '');
+  }
 
   function generateSlug(length = 6) {
     const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

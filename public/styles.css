@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PulseLink - Single Page Responsive URL Shortener & QR Studio CSS
+   Elegant Hubble - Single Page Responsive URL Shortener & QR Studio CSS
    ========================================================================== */
 
 :root {
@@ -237,10 +237,16 @@ h1, h2, h3 {
   box-shadow: 0 6px 16px var(--primary-glow);
 }
 
-.btn-outline {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-glass);
-  color: #fff;
+.btn-block {
+  width: 100%;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.form-submit-row {
+  margin-top: 1.25rem;
 }
 
 .btn-outline:hover {
@@ -468,12 +474,101 @@ h1, h2, h3 {
   font-size: 0.85rem;
 }
 
-/* Mobile Responsiveness */
+/* Mobile & Tablet Comprehensive Responsiveness */
 @media (max-width: 768px) {
-  .grid-2 { grid-template-columns: 1fr; }
-  .main-input-group { flex-direction: column; align-items: stretch; }
-  .short-url-box { flex-direction: column; align-items: stretch; }
-  .hero-title { font-size: 2rem; }
-  .navbar { padding: 0.85rem 1rem; }
-  .nav-tagline { display: none; }
+  .hero-title {
+    font-size: clamp(1.75rem, 6vw, 2.2rem);
+  }
+
+  .main-content {
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+  }
+
+  .glass-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .main-input-group {
+    flex-direction: column;
+    align-items: stretch;
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 0.6rem;
+  }
+
+  .main-input-group .form-control {
+    background: rgba(11, 15, 25, 0.9);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    min-height: 48px;
+  }
+
+  .main-input-group .input-icon {
+    display: none;
+  }
+
+  .main-input-group .btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .short-url-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 1rem;
+  }
+
+  .short-url-box .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .short-url-text {
+    font-size: 1.05rem;
+    text-align: center;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .qr-download-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .qr-download-actions .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-tagline {
+    display: none;
+  }
+
+  .preset-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  #qr-canvas {
+    max-width: 180px;
+    max-height: 180px;
+  }
 }
