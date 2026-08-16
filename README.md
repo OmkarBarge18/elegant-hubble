@@ -11,11 +11,36 @@
 
 <p align="center">
   <a href="http://localhost:8000">
-    <img src="public/preview.jpg" alt="Elegant Hubble Interface Preview" width="95%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+    <img src="public/app_form.png" alt="Elegant Hubble Application Interface" width="95%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
   </a>
 </p>
 
 **Elegant Hubble** is a modern, high-performance, single-page URL Shortener & Scannable QR Code Studio built with a dark glassmorphism aesthetic. It features real-time custom slug sanitization, local network (LAN) multi-device access, file-backed database persistence, and vector/raster QR exports.
+
+---
+
+## 📸 Application Showcase
+
+### 1. Main Shortener & Custom Domain Selector
+<p align="center">
+  <a href="http://localhost:8000">
+    <img src="public/app_form.png" alt="URL Shortener Form & Domain Selector" width="95%" style="border-radius: 12px;" />
+  </a>
+</p>
+
+### 2. Shortened Link & Multi-Device Access Card
+<p align="center">
+  <a href="http://localhost:8000">
+    <img src="public/app_result.png" alt="Shortened Link Result & Multi-Device Wi-Fi Link" width="95%" style="border-radius: 12px;" />
+  </a>
+</p>
+
+### 3. Customizable Scannable QR Code Studio
+<p align="center">
+  <a href="http://localhost:8000">
+    <img src="public/app_qr_studio.png" alt="Customizable Scannable QR Code Studio" width="95%" style="border-radius: 12px;" />
+  </a>
+</p>
 
 ---
 
@@ -53,7 +78,9 @@ elegant-hubble/
 │   ├── index.html         # Glassmorphism HTML5 Layout
 │   ├── styles.css         # CSS Tokens, Clamp Typography & Mobile Breakpoints
 │   ├── qrcode.min.js      # Client-side Canvas QR Generator Engine
-│   └── preview.jpg        # Application Interface Preview Screenshot
+│   ├── app_form.png       # Screenshot: Main Shortener Form
+│   ├── app_result.png     # Screenshot: Shortened Link Result
+│   └── app_qr_studio.png  # Screenshot: Scannable QR Studio
 ├── Dockerfile             # Multi-stage Docker Container Build File
 ├── docker-compose.yml     # Multi-container Orchestration (Express + Redis + Postgres)
 ├── links_db.json          # File-backed Persistent Storage Database
