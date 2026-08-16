@@ -18,6 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const domainSelect = document.getElementById('domain-select');
+  const customDomainFieldGroup = document.getElementById('custom-domain-field-group');
+  const customDomainInput = document.getElementById('custom-domain-input');
+  const prefixElem = document.getElementById('slug-domain-prefix');
+
+  function updateDomainPrefix() {
+    if (!domainSelect) return;
+    const val = domainSelect.value;
+    if (val === 'custom' || val === 'tunnel') {
+      if (customDomainFieldGroup) customDomainFieldGroup.classList.remove('hidden');
+      const customVal = customDomainInput ? customDomainInput.value.trim().replace(/^https?:\/\//, '') : '';
+      if (prefixElem) prefixElem.innerText = customVal ? (customVal.endsWith('/') ? customVal : customVal + '/') : (val === 'tunnel' ? 'public-domain.com/' : 'custom-domain.com/');
+    } else if (val === 'auto') {
+      if (customDomainFieldGroup) customDomainFieldGroup.classList.add('hidden');
+      const autoHost = state.lanIp ? `${state.lanIp}:8000/` : `${window.location.host}/`;
+      if (prefixElem) prefixElem.innerText = autoHost;
+    } else {
+      if (customDomainFieldGroup) customDomainFieldGroup.classList.add('hidden');
+      if (prefixElem) prefixElem.innerText = `${val}/`;
+    }
+  }
+
   // Fetch Network Info for Multi-Device Access
   fetch('/api/system/network-info')
     .then(r => r.json())
@@ -29,23 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tagline) {
           tagline.innerHTML = `<i class="fa-solid fa-wifi text-success"></i> Working Network URL: <strong style="color:#38bdf8">${res.networkUrl}</strong>`;
         }
-        const prefixElem = document.getElementById('slug-domain-prefix');
-        if (prefixElem) prefixElem.innerText = `${res.lanIp}:${res.port || 8000}/`;
+        const autoOpt = document.querySelector('#domain-select option[value="auto"]');
+        if (autoOpt) autoOpt.innerText = `⚡ Auto / LAN IP (${res.lanIp}:${res.port || 8000})`;
+        updateDomainPrefix();
       }
     }).catch(() => {
-      const prefixElem = document.getElementById('slug-domain-prefix');
-      if (prefixElem) prefixElem.innerText = `${window.location.host}/`;
+      updateDomainPrefix();
     });
 
-  const customDomainInput = document.getElementById('custom-domain-input');
+  if (domainSelect) {
+    domainSelect.addEventListener('change', updateDomainPrefix);
+  }
+
   if (customDomainInput) {
-    customDomainInput.addEventListener('input', (e) => {
-      const val = e.target.value.trim().replace(/^https?:\/\//, '');
-      const prefixElem = document.getElementById('slug-domain-prefix');
-      if (prefixElem) {
-        prefixElem.innerText = val ? (val.endsWith('/') ? val : val + '/') : (state.lanIp ? `${state.lanIp}:8000/` : `${window.location.host}/`);
-      }
-    });
+    customDomainInput.addEventListener('input', updateDomainPrefix);
   }
 
   // Form Elements
@@ -106,14 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       }
 
-      // Apply Custom Domain Override if entered
-      if (customDomainRaw) {
-        let domainClean = customDomainRaw.replace(/^https?:\/\//, '');
-        if (!domainClean.includes(':') && !domainClean.includes('.')) {
-          domainClean = `${domainClean}:8000`;
-        }
-        const protocol = customDomainRaw.startsWith('https://') ? 'https' : 'http';
-        data.shortUrl = `${protocol}://${domainClean}/${data.slug}`;
+      // Format Short URL based on selected domain
+      let selectedDomain = domainSelect ? domainSelect.value : 'auto';
+      let domainHost = '';
+      if (selectedDomain === 'custom' || selectedDomain === 'tunnel') {
+        domainHost = customDomainInput ? customDomainInput.value.trim() : '';
+      } else if (selectedDomain !== 'auto') {
+        domainHost = selectedDomain;
+      }
+
+      if (domainHost) {
+        let isHttps = domainHost.startsWith('https://') || domainHost.includes('.loca.lt') || domainHost.includes('.ngrok') || domainHost.includes('.render.com');
+        let domainClean = domainHost.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+        const scheme = isHttps ? 'https' : 'http';
+        data.shortUrl = `${scheme}://${domainClean}/${data.slug}`;
       }
 
       // Update Active State
@@ -121,14 +146,22 @@ document.addEventListener('DOMContentLoaded', () => {
       state.activeOriginalUrl = data.originalUrl;
       state.activeShortUrl = data.shortUrl;
 
+      // Working Server URL for instant 302 redirection testing
+      const workingServerHost = state.lanIp ? `http://${state.lanIp}:8000` : window.location.origin;
+      const workingShortUrl = `${workingServerHost}/${data.slug}`;
+
       // Populate Shortened URL Box
       document.getElementById('result-short-url').innerText = state.activeShortUrl;
+      const wifiUrlElem = document.getElementById('result-wifi-url');
+      if (wifiUrlElem) wifiUrlElem.innerText = workingShortUrl;
+
       const origLinkElem = document.getElementById('result-original-url');
       origLinkElem.innerText = state.activeOriginalUrl;
       origLinkElem.href = state.activeOriginalUrl;
 
+      // Visit Link button always routes through active server for instant 302 redirect testing
       const visitBtn = document.getElementById('btn-test-short');
-      visitBtn.href = state.activeShortUrl;
+      visitBtn.href = workingShortUrl;
 
       // Reveal Workspace & Render QR Code
       resultContainer.classList.remove('hidden');
@@ -172,6 +205,19 @@ document.addEventListener('DOMContentLoaded', () => {
       copyBtn.innerHTML = `<i class="fa-regular fa-copy"></i> Copy Link`;
     }, 2000);
   });
+
+  // Copy Mobile Wi-Fi Working Link Button
+  const btnCopyWifi = document.getElementById('btn-copy-wifi');
+  if (btnCopyWifi) {
+    btnCopyWifi.addEventListener('click', () => {
+      const wifiText = document.getElementById('result-wifi-url').innerText;
+      navigator.clipboard.writeText(wifiText);
+      btnCopyWifi.innerHTML = `<i class="fa-solid fa-check"></i> Copied Mobile Link!`;
+      setTimeout(() => {
+        btnCopyWifi.innerHTML = `<i class="fa-regular fa-copy"></i> Copy Mobile Link`;
+      }, 2000);
+    });
+  }
 
   // --- QR Studio Controls ---
   document.querySelectorAll('input[name="qr-target-mode"]').forEach(radio => {
@@ -224,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.targetQrMode === 'original' && state.activeOriginalUrl) {
       return state.activeOriginalUrl;
     }
-    return state.activeShortUrl || window.location.origin;
+    const workingServerHost = state.lanIp ? `http://${state.lanIp}:8000` : window.location.origin;
+    return state.activeSlug ? `${workingServerHost}/${state.activeSlug}` : (state.activeShortUrl || window.location.origin);
   }
 
   function renderQrCanvas() {

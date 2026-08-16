@@ -80,6 +80,9 @@ def extract_clean_slug(raw_str):
     return re.sub(r'[^a-zA-Z0-9_-]', '', last_part)
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=PUBLIC_DIR, **kwargs)
+
     def translate_path(self, path):
         # Serve files from public folder
         parsed_path = urllib.parse.urlparse(path).path
@@ -239,9 +242,15 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
 if __name__ == '__main__':
+    socketserver.TCPServer.allow_reuse_address = True
+    lan_ip = get_lan_ip()
+    
     print("=======================================================")
-    print(f"ElegantHubble Local Server listening at http://localhost:{PORT}")
+    print(f"ElegantHubble Server Online!")
+    print(f"Local Desktop: http://localhost:{PORT}")
+    print(f"LAN / Wi-Fi:   http://{lan_ip}:{PORT}")
     print("=======================================================")
+
     with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
         try:
             httpd.serve_forever()

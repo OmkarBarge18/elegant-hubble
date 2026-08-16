@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Local Scannable QR Engine -->
-  <script src="qrcode.min.js?v=10"></script>
-  <link rel="stylesheet" href="styles.css?v=10">
+  <script src="qrcode.min.js?v=14"></script>
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body class="dark-theme">
   <!-- Ambient Glow Background -->
@@ -53,22 +53,39 @@
           </div>
         </div>
 
-        <!-- 2. Custom Slug & Base Domain Inputs (Prominently Visible) -->
+        <!-- 2. Domain Selector & Custom Slug Inputs -->
         <div class="grid grid-2 mt-3">
           <div class="form-group">
-            <label for="custom-slug-input"><i class="fa-solid fa-hashtag"></i> Custom Slug (Optional)</label>
-            <div class="input-prefix-group">
-              <span class="input-prefix" id="slug-domain-prefix">short.link/</span>
-              <input type="text" id="custom-slug-input" class="form-control" placeholder="my-custom-slug" maxlength="32">
-            </div>
-            <small class="form-help">Enter your custom slug keyword (e.g. my-custom-link)</small>
+            <label for="domain-select"><i class="fa-solid fa-globe"></i> Short Link Domain</label>
+            <select id="domain-select" class="form-control select-control">
+              <option value="auto" selected>⚡ Same Wi-Fi / Local IP (192.168.1.107:8000)</option>
+              <option value="tunnel">🌐 Global Public Domain (Works on Different Wi-Fi / 4G / 5G)</option>
+              <option value="elgt.link">elgt.link (Compact Short Domain)</option>
+              <option value="hub.ly">hub.ly (Hubble Short Domain)</option>
+              <option value="hubble.io">hubble.io (Space Domain)</option>
+              <option value="pulse.ly">pulse.ly (Pulse Domain)</option>
+              <option value="custom">✏️ Enter Custom Domain...</option>
+            </select>
+            <small class="form-help">Choose domain for local Wi-Fi or global multi-network access</small>
           </div>
 
           <div class="form-group">
-            <label for="custom-domain-input"><i class="fa-solid fa-network-wired"></i> Custom Domain / Host (Optional)</label>
-            <input type="text" id="custom-domain-input" class="form-control" placeholder="e.g. pulse.ly or 192.168.1.107:8000">
-            <small class="form-help">Override domain prefix if using custom host</small>
+            <label for="custom-slug-input"><i class="fa-solid fa-hashtag"></i> Custom Slug (Optional)</label>
+            <div class="input-prefix-group">
+              <span class="input-prefix" id="slug-domain-prefix">192.168.1.107:8000/</span>
+              <input type="text" id="custom-slug-input" class="form-control" placeholder="my-custom-slug" maxlength="32">
+            </div>
+            <small class="form-help">Keyword slug for your short link</small>
           </div>
+        </div>
+
+        <!-- Custom Domain Override Input (Visible when 'custom' or 'tunnel' is selected) -->
+        <div class="form-group mt-3 hidden" id="custom-domain-field-group">
+          <label for="custom-domain-input"><i class="fa-solid fa-network-wired"></i> Enter Your Live Custom Domain / Global Public URL</label>
+          <input type="text" id="custom-domain-input" class="form-control" placeholder="e.g. https://mybrand.com, https://xyz.loca.lt, or ngrok URL">
+          <small class="form-help">
+            <i class="fa-solid fa-lightbulb text-warning"></i> <strong>For Different Wi-Fi / Cellular 4G/5G Access:</strong> Enter your live public domain or run <code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">npx localtunnel --port 8000</code> or <code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">ngrok http 8000</code> in terminal for a 100% free global HTTPS domain!
+          </small>
         </div>
 
         <!-- Submit Button -->
@@ -89,8 +106,9 @@
           <div class="result-badge"><i class="fa-solid fa-circle-check"></i> Shortened Link Ready!</div>
         </div>
 
+        <!-- Primary Display Short URL Box -->
         <div class="short-url-box">
-          <span class="short-url-text" id="result-short-url">http://localhost:8000/dev-launch</span>
+          <span class="short-url-text" id="result-short-url">http://192.168.1.107:8000/dev-launch</span>
           <button class="btn btn-outline" id="btn-copy-short">
             <i class="fa-regular fa-copy"></i> Copy Link
           </button>
@@ -99,11 +117,25 @@
           </a>
         </div>
 
+        <!-- Mobile & Wi-Fi Working Link Box (Guaranteed working on all mobile phones & devices) -->
+        <div class="short-url-box mt-2" id="wifi-link-box" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+          <div style="display:flex; flex-direction:column; gap:0.2rem; flex-grow:1;">
+            <small style="color: #34d399; font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-mobile-screen-button"></i> MULTI-DEVICE / MOBILE WI-FI WORKING LINK</small>
+            <span class="short-url-text" id="result-wifi-url" style="color: #6ee7b7; font-size: 0.95rem;">http://192.168.1.107:8000/dev-launch</span>
+          </div>
+          <button class="btn btn-sm btn-outline" id="btn-copy-wifi" style="border-color: rgba(52, 211, 153, 0.4); color: #34d399;">
+            <i class="fa-regular fa-copy"></i> Copy Mobile Link
+          </button>
+        </div>
+
         <div class="result-details">
           <div class="detail-item">
             <span class="detail-label">Original Target URL</span>
             <a href="#" target="_blank" class="detail-value text-ellipsis text-muted" id="result-original-url">https://github.com/...</a>
           </div>
+          <small class="form-help mt-2" style="display:block; color:#9ca3af; margin-top:0.5rem;">
+            <i class="fa-solid fa-circle-info text-primary"></i> <strong>Multi-Device Access Note:</strong> Custom brand domains (like hubble.io) are for display. Use the <strong>Mobile Wi-Fi Link</strong> above to open short links on any smartphone or tablet connected to your Wi-Fi!
+          </small>
         </div>
       </div>
 
@@ -191,6 +223,6 @@
     <p>Elegant Hubble • Fast, Responsive URL Shortener & Scannable QR Code Studio</p>
   </footer>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
