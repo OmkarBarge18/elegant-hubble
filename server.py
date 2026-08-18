@@ -257,10 +257,18 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json_response(500, {'error': str(e)})
             return
 
+    def end_headers(self):
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header('X-Frame-Options', 'SAMEORIGIN')
+        self.send_header('X-XSS-Protection', '1; mode=block')
+        self.send_header('X-Enterprise-Engine', 'ElegantHubble-SaaS-v2.4')
+        super().end_headers()
+
     def send_json_response(self, code, data):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
         self.end_headers()
         self.wfile.write(json.dumps(data).encode('utf-8'))
 

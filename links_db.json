@@ -196,5 +196,23 @@
     "isCustom": false,
     "createdAt": "2026-08-16",
     "clicks": 0
+  },
+  "clean-ui-test": {
+    "id": "u_162",
+    "slug": "clean-ui-test",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-18",
+    "clicks": 1
+  },
+  "ug": {
+    "id": "u_894",
+    "slug": "ug",
+    "originalUrl": "https://github.com/expressjs/express",
+    "title": "github.com",
+    "isCustom": true,
+    "createdAt": "2026-08-18",
+    "clicks": 0
   }
 }
