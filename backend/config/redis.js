@@ -46,7 +46,7 @@ try {
 
 /**
  * Cache GET with hit/miss latency measurement
- */.
+ */
 async function getCache(key) {
   const startTime = performance.now();
   
